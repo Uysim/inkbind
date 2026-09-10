@@ -1,0 +1,21 @@
+[package]
+name = "inkbind"
+version = "0.0.0"
+edition = "2021"
+rust-version = "1.75"
+license = "MIT OR Apache-2.0"
+description = "A helper library for reading, extracting from, and manipulating PDF documents."
+repository = "https://github.com/Uysim/inkbind"
+documentation = "https://docs.rs/inkbind"
+readme = "README.md"
+keywords = ["pdf", "parser", "text-extraction", "document"]
+categories = ["parser-implementations", "text-processing"]
+
+[dependencies]
+
+[lints.rust]
+missing_docs = "warn"
+unsafe_code = "forbid"
+
+[lints.clippy]
+all = "warn"
