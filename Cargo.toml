@@ -13,6 +13,12 @@ categories = ["parser-implementations", "text-processing"]
 
 [dependencies]
 
+[dev-dependencies]
+# Step 2 evaluation spike only (see docs/adr/0001-pdf-parsing-approach.md).
+# Pinned to the newest release that builds on the 1.75 MSRV; Step 4 promotes
+# this to a normal dependency behind inkbind's own types.
+lopdf = { version = "=0.32.0", default-features = false, features = ["nom_parser"] }
+
 [lints.rust]
 missing_docs = "warn"
 unsafe_code = "forbid"
