@@ -26,6 +26,12 @@ cargo clippy --all-targets --all-features
 
 CI runs the same checks on `stable` and on the crate's MSRV (`1.75`).
 
+## Design decisions
+
+Architecture decision records live in [`docs/adr/`](docs/adr/). The parsing
+backend is `lopdf`, wrapped behind inkbind's own types — see
+[ADR 0001](docs/adr/0001-pdf-parsing-approach.md).
+
 ## License
 
 Licensed under either of [Apache License, Version 2.0](LICENSE-APACHE) or
