@@ -16,6 +16,10 @@
 //! - [`split`] — deriving new documents from individual pages or arbitrary
 //!   page ranges of an existing document ([`Document::split`]). Implemented
 //!   as of Step 10.
+//! - [`rotate`] — rotating an individual page ([`Document::rotate_page`],
+//!   [`Page::rotation`]). Implemented as of Step 11.
+//! - [`reorder`] — reordering a document's page sequence
+//!   ([`Document::reorder`]). Implemented as of Step 11.
 //!
 //! # Example
 //!
@@ -27,6 +31,8 @@ pub mod document;
 pub mod images;
 pub mod merge;
 pub mod metadata;
+pub mod reorder;
+pub mod rotate;
 pub mod split;
 pub mod text;
 
