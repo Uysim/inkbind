@@ -7,8 +7,7 @@
 //! - [`text`] — extracting text content from a page or document. Implemented
 //!   as of Step 5.
 //! - [`metadata`] — reading document information such as title and author
-//!   ([`Document::metadata`]). Still a documented stub returning
-//!   [`Error::Unsupported`] until Step 6.
+//!   ([`Document::metadata`]). Implemented as of Step 6.
 //!
 //! # Example
 //!

@@ -96,3 +96,66 @@ python3 tests/fixtures/gen_multiline_pdf.py tests/fixtures/multiline.pdf
 Used by `tests/text_extraction.rs` (Step 5) to pin ordering/line-separation
 *within* a single page's extracted text (`two_pages.pdf` only covers
 ordering *across* pages).
+
+## `full_metadata.pdf` (892 bytes)
+
+A single-page PDF 1.7 file with:
+
+- Catalog → Pages → one `/MediaBox [0 0 612 792]` page
+- an **uncompressed** content stream drawing the text `Full Metadata`
+- a Type1 `/Helvetica` font resource
+- an `/Info` dictionary with **all seven** fields `inkbind` reads:
+  `/Title`, `/Author`, `/Subject`, `/Keywords`, `/Creator`, `/Producer`,
+  `/CreationDate` (`D:20240115093000+00'00'`) — plain ASCII literal strings
+- a classic (non-stream) cross-reference table + trailer
+
+### Regenerate
+
+```sh
+python3 tests/fixtures/gen_full_metadata_pdf.py tests/fixtures/full_metadata.pdf
+```
+
+Used by `tests/metadata_extraction.rs` (Step 6) to pin that every `/Info`
+field reaches `Metadata` when present.
+
+## `unicode_metadata.pdf` (718 bytes)
+
+A single-page PDF 1.7 file with:
+
+- Catalog → Pages → one `/MediaBox [0 0 612 792]` page
+- an **uncompressed** content stream drawing the text `Unicode Metadata`
+- a Type1 `/Helvetica` font resource
+- an `/Info` dictionary whose `/Title` is the PDF string literal
+  `(<0xFE 0xFF BOM><UTF-16BE "café">)` — the encoding real PDF producers
+  use for non-ASCII `/Info` text strings — plus a plain-ASCII `/Producer`
+  for shape-parity with the other fixtures
+- a classic (non-stream) cross-reference table + trailer
+
+### Regenerate
+
+```sh
+python3 tests/fixtures/gen_unicode_metadata_pdf.py tests/fixtures/unicode_metadata.pdf
+```
+
+Used by `tests/metadata_extraction.rs` (Step 6) to pin BOM-based UTF-16BE
+decoding of `/Info` text strings.
+
+## `no_info.pdf` (588 bytes)
+
+A single-page PDF 1.7 file with:
+
+- Catalog → Pages → one `/MediaBox [0 0 612 792]` page
+- an **uncompressed** content stream drawing the text `No Info`
+- a Type1 `/Helvetica` font resource
+- a trailer with **no `/Info` entry at all** — the `/Info` dictionary is
+  optional per the PDF spec
+- a classic (non-stream) cross-reference table + trailer
+
+### Regenerate
+
+```sh
+python3 tests/fixtures/gen_no_info_pdf.py tests/fixtures/no_info.pdf
+```
+
+Used by `tests/metadata_extraction.rs` (Step 6) to pin that a missing
+`/Info` dictionary yields `Ok(Metadata::default())`, not an error.

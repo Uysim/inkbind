@@ -4,14 +4,12 @@
 //! Step 4, on top of `lopdf` — see
 //! [ADR 0001](https://github.com/Uysim/inkbind/blob/main/docs/adr/0001-pdf-parsing-approach.md).
 //! `lopdf` is an implementation detail: its types never appear in this
-//! module's public API. [`Document::metadata`] remains a documented stub
-//! until Step 6; text extraction ([`crate::text`]) is implemented as of
-//! Step 5.
+//! module's public API. Text extraction ([`crate::text`]) is implemented as
+//! of Step 5; metadata extraction ([`crate::metadata`]) as of Step 6.
 
 use std::path::Path;
 use std::sync::Arc;
 
-use crate::metadata::Metadata;
 use crate::{Error, Result};
 
 /// An in-memory representation of a PDF document.
@@ -73,18 +71,10 @@ impl Document {
         }
     }
 
-    /// Reads the document's `/Info` metadata.
-    ///
-    /// This is currently a stub: it always returns [`Error::Unsupported`].
-    /// Real metadata extraction lands in Step 6.
-    pub fn metadata(&self) -> Result<Metadata> {
-        Err(Error::Unsupported("Document::metadata".to_owned()))
-    }
-
     /// The underlying `lopdf` document, for use by sibling modules
-    /// (`crate::text`) that need to call `lopdf` APIs directly. Never
-    /// exposed outside the crate — `lopdf` types don't cross the public API
-    /// boundary.
+    /// (`crate::text`, `crate::metadata`) that need to call `lopdf` APIs
+    /// directly. Never exposed outside the crate — `lopdf` types don't cross
+    /// the public API boundary.
     pub(crate) fn inner(&self) -> &lopdf::Document {
         &self.inner
     }

@@ -3,13 +3,13 @@
 //! `Document::open` / `Document::from_bytes` / `Document::page_count` /
 //! `Document::page` are real as of Step 4 (see
 //! `docs/adr/0001-pdf-parsing-approach.md`); `Document::text` / `Page::text`
-//! are real as of Step 5. `Document::metadata` remains a documented stub
-//! until Step 6. Deeper behavior for the implemented methods lives in
-//! `tests/document_loading.rs` (Step 4) and `tests/text_extraction.rs`
-//! (Step 5) — these tests just pin the *shape* of the API plus a minimal
-//! happy path.
+//! are real as of Step 5; `Document::metadata` is real as of Step 6. Deeper
+//! behavior for the implemented methods lives in `tests/document_loading.rs`
+//! (Step 4), `tests/text_extraction.rs` (Step 5), and
+//! `tests/metadata_extraction.rs` (Step 6) — these tests just pin the
+//! *shape* of the API plus a minimal happy path.
 
-use inkbind::{Document, Error, Metadata, Page, Result};
+use inkbind::{Document, Metadata, Page, Result};
 
 fn assert_send_sync<T: Send + Sync>() {}
 fn assert_debug<T: std::fmt::Debug>() {}
@@ -47,11 +47,13 @@ fn document_and_page_signatures_are_pinned() {
 }
 
 #[test]
-fn metadata_is_still_an_unsupported_stub() {
-    // `metadata` is the Step 6 contract; pin its still-stubbed behavior so
-    // that step's TDD red/green is unambiguous.
+fn metadata_reads_the_info_dictionary() {
+    // `metadata`'s full extraction behavior (all fields, partial fields,
+    // encoding, missing /Info) lives in `tests/metadata_extraction.rs`;
+    // this is just the happy-path shape pin.
     let doc = Document::open("tests/fixtures/minimal.pdf").expect("fixture should parse");
-    assert!(matches!(doc.metadata().unwrap_err(), Error::Unsupported(_)));
+    let meta = doc.metadata().expect("metadata should be readable");
+    assert_eq!(meta.title.as_deref(), Some("Inkbind Minimal Fixture"));
 }
 
 #[test]
@@ -70,4 +72,5 @@ fn metadata_is_plain_data() {
     let meta = Metadata::default();
     assert_eq!(meta, Metadata::default());
     assert_eq!(meta.clone().title, None);
+    assert_eq!(meta.creation_date, None);
 }
