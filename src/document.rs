@@ -6,6 +6,9 @@
 //! `lopdf` is an implementation detail: its types never appear in this
 //! module's public API. Text extraction ([`crate::text`]) is implemented as
 //! of Step 5; metadata extraction ([`crate::metadata`]) as of Step 6.
+//! Serializing a document back to bytes or a file ([`Document::to_bytes`],
+//! [`Document::save`]) is implemented as of Step 13, alongside
+//! [`crate::writer`], which builds new documents from scratch.
 
 use std::path::Path;
 use std::sync::Arc;
@@ -69,6 +72,22 @@ impl Document {
         } else {
             Err(Error::PageNotFound(index))
         }
+    }
+
+    /// Serializes the document to PDF bytes, suitable for writing to a file
+    /// or passing to [`Document::from_bytes`].
+    pub fn to_bytes(&self) -> Result<Vec<u8>> {
+        let mut inner = self.inner().clone();
+        let mut buffer = Vec::new();
+        inner.save_to(&mut buffer)?;
+        Ok(buffer)
+    }
+
+    /// Serializes the document and writes it to `path`.
+    pub fn save<P: AsRef<Path>>(&self, path: P) -> Result<()> {
+        let mut inner = self.inner().clone();
+        inner.save(path)?;
+        Ok(())
     }
 
     /// The underlying `lopdf` document, for use by sibling modules
