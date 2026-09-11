@@ -1,9 +1,10 @@
 //! Loading a PDF document and walking its object model.
 //!
 //! This module currently defines the public API surface only (Step 3 — see
-//! [ADR 0001](../../docs/adr/0001-pdf-parsing-approach.md)). [`Document::open`]
-//! and [`Document::from_bytes`] return [`Error::Unsupported`] until Step 4
-//! wires up the real `lopdf`-backed parser behind these types.
+//! [ADR 0001](https://github.com/Uysim/inkbind/blob/main/docs/adr/0001-pdf-parsing-approach.md)).
+//! [`Document::open`] and [`Document::from_bytes`] return
+//! [`Error::Unsupported`] until Step 4 wires up the real `lopdf`-backed
+//! parser behind these types.
 
 use std::path::Path;
 
