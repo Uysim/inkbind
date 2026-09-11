@@ -11,6 +11,8 @@
 //! - [`images`] — extracting embedded raster images from a page's resource
 //!   dictionary ([`Document::images`], [`Page::images`]). Implemented as of
 //!   Step 8.
+//! - [`merge`] — combining multiple documents into one, preserving page
+//!   order ([`Document::merge`]). Implemented as of Step 9.
 //!
 //! # Example
 //!
@@ -20,6 +22,7 @@
 
 pub mod document;
 pub mod images;
+pub mod merge;
 pub mod metadata;
 pub mod text;
 
