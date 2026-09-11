@@ -23,6 +23,10 @@
 //! - [`watermark`] — stamping a text watermark onto every page
 //!   ([`Document::watermark_text`], [`WatermarkOptions`]). Implemented as of
 //!   Step 12.
+//! - [`writer`] — building a new document from scratch
+//!   ([`DocumentBuilder`], [`PageSpec`], [`TextLine`]), plus serializing any
+//!   document back to bytes or a file ([`Document::to_bytes`],
+//!   [`Document::save`]). Implemented as of Step 13.
 //!
 //! # Example
 //!
@@ -39,6 +43,7 @@ pub mod rotate;
 pub mod split;
 pub mod text;
 pub mod watermark;
+pub mod writer;
 
 mod error;
 
@@ -47,6 +52,7 @@ pub use error::{Error, Result};
 pub use images::{Image, ImageFormat};
 pub use metadata::Metadata;
 pub use watermark::WatermarkOptions;
+pub use writer::{DocumentBuilder, PageSpec, TextLine, LETTER_SIZE};
 
 /// The version of the `inkbind` crate, as reported by Cargo at build time.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
