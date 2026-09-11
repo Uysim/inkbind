@@ -22,6 +22,12 @@ pub enum Error {
     Io(io::Error),
     /// The requested page index is out of range for the document.
     PageNotFound(usize),
+    /// A rotation was requested that is not a multiple of 90 degrees.
+    InvalidRotation(i32),
+    /// The page order given to [`crate::Document::reorder`] is not a
+    /// permutation of the document's page indices (wrong length, or a
+    /// duplicate index).
+    InvalidPageOrder,
 }
 
 impl fmt::Display for Error {
@@ -31,6 +37,15 @@ impl fmt::Display for Error {
             Error::Unsupported(detail) => write!(f, "unsupported PDF feature: {detail}"),
             Error::Io(source) => write!(f, "I/O error: {source}"),
             Error::PageNotFound(index) => write!(f, "page index {index} out of range"),
+            Error::InvalidRotation(degrees) => {
+                write!(
+                    f,
+                    "rotation must be a multiple of 90 degrees, got {degrees}"
+                )
+            }
+            Error::InvalidPageOrder => {
+                write!(f, "page order is not a permutation of the document's pages")
+            }
         }
     }
 }
@@ -39,7 +54,11 @@ impl std::error::Error for Error {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
             Error::Io(source) => Some(source),
-            Error::InvalidPdf(_) | Error::Unsupported(_) | Error::PageNotFound(_) => None,
+            Error::InvalidPdf(_)
+            | Error::Unsupported(_)
+            | Error::PageNotFound(_)
+            | Error::InvalidRotation(_)
+            | Error::InvalidPageOrder => None,
         }
     }
 }
@@ -89,5 +108,23 @@ mod tests {
             "page index 3 out of range",
         );
         assert!(std::error::Error::source(&Error::PageNotFound(3)).is_none());
+    }
+
+    #[test]
+    fn invalid_rotation_displays_the_degrees() {
+        assert_eq!(
+            Error::InvalidRotation(45).to_string(),
+            "rotation must be a multiple of 90 degrees, got 45",
+        );
+        assert!(std::error::Error::source(&Error::InvalidRotation(45)).is_none());
+    }
+
+    #[test]
+    fn invalid_page_order_is_human_readable() {
+        assert_eq!(
+            Error::InvalidPageOrder.to_string(),
+            "page order is not a permutation of the document's pages",
+        );
+        assert!(std::error::Error::source(&Error::InvalidPageOrder).is_none());
     }
 }
