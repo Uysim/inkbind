@@ -20,6 +20,8 @@ pub enum Error {
     Unsupported(String),
     /// An I/O error occurred while reading or writing PDF data.
     Io(io::Error),
+    /// The requested page index is out of range for the document.
+    PageNotFound(usize),
 }
 
 impl fmt::Display for Error {
@@ -28,6 +30,7 @@ impl fmt::Display for Error {
             Error::InvalidPdf(detail) => write!(f, "invalid PDF: {detail}"),
             Error::Unsupported(detail) => write!(f, "unsupported PDF feature: {detail}"),
             Error::Io(source) => write!(f, "I/O error: {source}"),
+            Error::PageNotFound(index) => write!(f, "page index {index} out of range"),
         }
     }
 }
@@ -36,7 +39,7 @@ impl std::error::Error for Error {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
             Error::Io(source) => Some(source),
-            Error::InvalidPdf(_) | Error::Unsupported(_) => None,
+            Error::InvalidPdf(_) | Error::Unsupported(_) | Error::PageNotFound(_) => None,
         }
     }
 }
@@ -77,5 +80,14 @@ mod tests {
     fn non_io_variants_have_no_source() {
         let error = Error::Unsupported("x".to_owned());
         assert!(std::error::Error::source(&error).is_none());
+    }
+
+    #[test]
+    fn page_not_found_displays_the_index() {
+        assert_eq!(
+            Error::PageNotFound(3).to_string(),
+            "page index 3 out of range",
+        );
+        assert!(std::error::Error::source(&Error::PageNotFound(3)).is_none());
     }
 }

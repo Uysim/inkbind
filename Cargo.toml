@@ -12,11 +12,10 @@ keywords = ["pdf", "parser", "text-extraction", "document"]
 categories = ["parser-implementations", "text-processing"]
 
 [dependencies]
-
-[dev-dependencies]
-# Step 2 evaluation spike only (see docs/adr/0001-pdf-parsing-approach.md).
-# Pinned to the newest release that builds on the 1.75 MSRV; Step 4 promotes
-# this to a normal dependency behind inkbind's own types.
+# Low-level PDF parsing / object-model backend (see
+# docs/adr/0001-pdf-parsing-approach.md). Pinned to the newest release that
+# builds on the 1.75 MSRV. Wrapped behind inkbind's own types in
+# src/document.rs — lopdf types never appear in inkbind's public API.
 lopdf = { version = "=0.32.0", default-features = false, features = ["nom_parser"] }
 
 [lints.rust]

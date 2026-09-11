@@ -1,14 +1,14 @@
 //! `inkbind` is a helper library for working with PDF documents.
 //!
-//! The crate is being built incrementally. The current release sketches the
-//! public API surface ([`Document`], [`Page`], [`Metadata`]) as documented
-//! stubs; every operation that requires real PDF parsing returns
-//! [`Error::Unsupported`] until the corresponding roadmap step lands:
+//! The crate is being built incrementally.
 //!
-//! - [`document`] — loading a PDF and walking its object model (Step 4).
-//! - [`text`] — extracting text content from a page or document (Step 5).
+//! - [`document`] — loading a PDF and walking its object model. Implemented
+//!   as of Step 4.
+//! - [`text`] — extracting text content from a page or document. Still a
+//!   documented stub returning [`Error::Unsupported`] until Step 5.
 //! - [`metadata`] — reading document information such as title and author
-//!   (Step 6).
+//!   ([`Document::metadata`]). Still a documented stub returning
+//!   [`Error::Unsupported`] until Step 6.
 //!
 //! # Example
 //!

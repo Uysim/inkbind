@@ -1,10 +1,11 @@
 //! Loading a PDF document and walking its object model.
 //!
-//! This module currently defines the public API surface only (Step 3 — see
-//! [ADR 0001](https://github.com/Uysim/inkbind/blob/main/docs/adr/0001-pdf-parsing-approach.md)).
-//! [`Document::open`] and [`Document::from_bytes`] return
-//! [`Error::Unsupported`] until Step 4 wires up the real `lopdf`-backed
-//! parser behind these types.
+//! Document loading (this module) and page enumeration are implemented as of
+//! Step 4, on top of `lopdf` — see
+//! [ADR 0001](https://github.com/Uysim/inkbind/blob/main/docs/adr/0001-pdf-parsing-approach.md).
+//! `lopdf` is an implementation detail: its types never appear in this
+//! module's public API. [`Document::metadata`] and text extraction
+//! ([`crate::text`]) remain documented stubs until Steps 5-6.
 
 use std::path::Path;
 
@@ -26,43 +27,40 @@ use crate::{Error, Result};
 /// ```
 #[derive(Debug)]
 pub struct Document {
-    _private: (),
+    inner: lopdf::Document,
 }
 
 impl Document {
     /// Opens a PDF document from a file path.
     ///
-    /// This is currently a stub: it always returns [`Error::Unsupported`].
-    /// Real parsing lands in Step 4.
-    pub fn open<P: AsRef<Path>>(_path: P) -> Result<Self> {
-        Err(Error::Unsupported("Document::open".to_owned()))
+    /// Returns [`Error::Io`] if the file cannot be read, or
+    /// [`Error::InvalidPdf`] if its contents cannot be parsed as a PDF.
+    pub fn open<P: AsRef<Path>>(path: P) -> Result<Self> {
+        let inner = lopdf::Document::load(path).map_err(map_load_error)?;
+        Ok(Document { inner })
     }
 
     /// Parses a PDF document from an in-memory byte buffer.
     ///
-    /// This is currently a stub: it always returns [`Error::Unsupported`].
-    /// Real parsing lands in Step 4.
-    pub fn from_bytes(_bytes: &[u8]) -> Result<Self> {
-        Err(Error::Unsupported("Document::from_bytes".to_owned()))
+    /// Returns [`Error::InvalidPdf`] if the bytes cannot be parsed as a PDF.
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self> {
+        let inner = lopdf::Document::load_mem(bytes).map_err(map_load_error)?;
+        Ok(Document { inner })
     }
 
     /// Returns the number of pages in the document.
-    ///
-    /// Always `0` until document loading is implemented in Step 4.
     pub fn page_count(&self) -> usize {
-        0
+        self.inner.get_pages().len()
     }
 
-    /// Returns the page at `index` (0-based).
+    /// Returns the page at `index` (0-based, in document order).
     ///
-    /// Returns [`Error::Unsupported`] for every index today, since no
-    /// document ever has pages loaded yet ([`Document::page_count`] is
-    /// always `0`).
+    /// Returns [`Error::PageNotFound`] if `index >= self.page_count()`.
     pub fn page(&self, index: usize) -> Result<Page> {
         if index < self.page_count() {
             Ok(Page { index })
         } else {
-            Err(Error::Unsupported("Document::page".to_owned()))
+            Err(Error::PageNotFound(index))
         }
     }
 
@@ -72,6 +70,15 @@ impl Document {
     /// Real metadata extraction lands in Step 6.
     pub fn metadata(&self) -> Result<Metadata> {
         Err(Error::Unsupported("Document::metadata".to_owned()))
+    }
+}
+
+/// Maps a `lopdf` load error onto `inkbind`'s own error type, so `lopdf`
+/// error types never cross the public API boundary.
+fn map_load_error(err: lopdf::Error) -> Error {
+    match err {
+        lopdf::Error::IO(io_err) => Error::Io(io_err),
+        other => Error::InvalidPdf(other.to_string()),
     }
 }
 
