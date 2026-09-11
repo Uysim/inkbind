@@ -78,6 +78,15 @@ impl Document {
     pub(crate) fn inner(&self) -> &lopdf::Document {
         &self.inner
     }
+
+    /// Wraps an already-built `lopdf::Document` as an `inkbind::Document`,
+    /// for sibling modules (`crate::merge`) that construct a new document
+    /// rather than loading one from bytes.
+    pub(crate) fn from_inner(inner: lopdf::Document) -> Self {
+        Document {
+            inner: Arc::new(inner),
+        }
+    }
 }
 
 /// Maps a `lopdf` error onto `inkbind`'s own error type, so `lopdf` error
