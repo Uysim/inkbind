@@ -2,18 +2,19 @@
 
 A helper library for reading, extracting from, and manipulating PDF documents, written in Rust.
 
-> **Status: early development.** The crate currently ships the module layout and
-> shared error type. Feature work (document loading, text/metadata extraction,
-> merge/split, and more) is tracked task-by-task. Full documentation lands in a
-> later step.
+> **Status: early development.** The crate ships its public API surface
+> (`Document`, `Page`, `Metadata`, the error type) as documented stubs; every
+> operation that requires real PDF parsing returns `Error::Unsupported` until
+> its roadmap step lands. Feature work (document loading, text/metadata
+> extraction, merge/split, and more) is tracked task-by-task.
 
 ## Layout
 
 | Module            | Purpose                                            |
 | ----------------- | ------------------------------------------------- |
-| `inkbind::document` | Load a PDF and walk its object model (planned).  |
-| `inkbind::text`     | Extract text from a page or document (planned).  |
-| `inkbind::metadata` | Read document information (planned).             |
+| `inkbind::document` | `Document`, `Page` — load a PDF and walk its object model (parsing lands in Step 4). |
+| `inkbind::text`     | Extract text from a page or document (Step 5).  |
+| `inkbind::metadata` | `Metadata` — read document information (Step 6). |
 | `inkbind::Error`    | The crate-wide error type.                       |
 
 ## Development
