@@ -50,4 +50,49 @@ python3 tests/fixtures/gen_two_page_pdf.py tests/fixtures/two_pages.pdf
 ```
 
 Used by `tests/document_loading.rs` (Step 4) to check that page enumeration
-and indexing hold across more than one page.
+and indexing hold across more than one page. Its distinct per-page text
+(`Page One` / `Page Two`) also makes it useful for `tests/text_extraction.rs`
+(Step 5): it pins ordering across pages.
+
+## `no_text.pdf` (592 bytes)
+
+A single-page PDF 1.7 file with:
+
+- Catalog → Pages → one `/MediaBox [0 0 612 792]` page
+- a **zero-length** content stream — no `BT`/`ET`, no text operators at all
+- an empty `/Font` resource dict, kept for shape-parity with the other
+  fixtures even though no font is ever selected
+- an `/Info` dictionary: `/Title (Inkbind No-Text Fixture)`,
+  `/Producer (inkbind gen_no_text_pdf.py)`, `/Creator (inkbind)`
+- a classic (non-stream) cross-reference table + trailer
+
+### Regenerate
+
+```sh
+python3 tests/fixtures/gen_no_text_pdf.py tests/fixtures/no_text.pdf
+```
+
+Used by `tests/text_extraction.rs` (Step 5) to pin that a page with no text
+content extracts as `Ok("")`, not an error.
+
+## `multiline.pdf` (782 bytes)
+
+A single-page PDF 1.7 file with:
+
+- Catalog → Pages → one `/MediaBox [0 0 612 792]` page
+- an **uncompressed** content stream with **two separate** `BT ... ET`
+  blocks at different `Td` offsets, drawing `First Line` then `Second Line`
+- a Type1 `/Helvetica` font resource
+- an `/Info` dictionary: `/Title (Inkbind Multiline Fixture)`,
+  `/Producer (inkbind gen_multiline_pdf.py)`, `/Creator (inkbind)`
+- a classic (non-stream) cross-reference table + trailer
+
+### Regenerate
+
+```sh
+python3 tests/fixtures/gen_multiline_pdf.py tests/fixtures/multiline.pdf
+```
+
+Used by `tests/text_extraction.rs` (Step 5) to pin ordering/line-separation
+*within* a single page's extracted text (`two_pages.pdf` only covers
+ordering *across* pages).
