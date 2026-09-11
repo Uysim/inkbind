@@ -13,6 +13,9 @@
 //!   Step 8.
 //! - [`merge`] — combining multiple documents into one, preserving page
 //!   order ([`Document::merge`]). Implemented as of Step 9.
+//! - [`split`] — deriving new documents from individual pages or arbitrary
+//!   page ranges of an existing document ([`Document::split`]). Implemented
+//!   as of Step 10.
 //!
 //! # Example
 //!
@@ -24,6 +27,7 @@ pub mod document;
 pub mod images;
 pub mod merge;
 pub mod metadata;
+pub mod split;
 pub mod text;
 
 mod error;
