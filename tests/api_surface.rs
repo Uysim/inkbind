@@ -2,11 +2,12 @@
 //!
 //! `Document::open` / `Document::from_bytes` / `Document::page_count` /
 //! `Document::page` are real as of Step 4 (see
-//! `docs/adr/0001-pdf-parsing-approach.md`); `Document::metadata` and
-//! `Document::text` / `Page::text` remain documented stubs until Steps 5-6.
-//! Deeper Step 4 behavior (multi-page enumeration, error cases) lives in
-//! `tests/document_loading.rs` — these tests just pin the *shape* of the API
-//! plus a minimal happy path.
+//! `docs/adr/0001-pdf-parsing-approach.md`); `Document::text` / `Page::text`
+//! are real as of Step 5. `Document::metadata` remains a documented stub
+//! until Step 6. Deeper behavior for the implemented methods lives in
+//! `tests/document_loading.rs` (Step 4) and `tests/text_extraction.rs`
+//! (Step 5) — these tests just pin the *shape* of the API plus a minimal
+//! happy path.
 
 use inkbind::{Document, Error, Metadata, Page, Result};
 
@@ -46,15 +47,11 @@ fn document_and_page_signatures_are_pinned() {
 }
 
 #[test]
-fn metadata_and_text_are_still_unsupported_stubs() {
-    // `metadata`/`text` are Step 5/6 contracts; pin their still-stubbed
-    // behavior so those steps' TDD red/green is unambiguous.
+fn metadata_is_still_an_unsupported_stub() {
+    // `metadata` is the Step 6 contract; pin its still-stubbed behavior so
+    // that step's TDD red/green is unambiguous.
     let doc = Document::open("tests/fixtures/minimal.pdf").expect("fixture should parse");
     assert!(matches!(doc.metadata().unwrap_err(), Error::Unsupported(_)));
-    assert!(matches!(doc.text().unwrap_err(), Error::Unsupported(_)));
-
-    let page = doc.page(0).expect("fixture has one page");
-    assert!(matches!(page.text().unwrap_err(), Error::Unsupported(_)));
 }
 
 #[test]

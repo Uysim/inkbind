@@ -4,10 +4,12 @@
 //! Step 4, on top of `lopdf` — see
 //! [ADR 0001](https://github.com/Uysim/inkbind/blob/main/docs/adr/0001-pdf-parsing-approach.md).
 //! `lopdf` is an implementation detail: its types never appear in this
-//! module's public API. [`Document::metadata`] and text extraction
-//! ([`crate::text`]) remain documented stubs until Steps 5-6.
+//! module's public API. [`Document::metadata`] remains a documented stub
+//! until Step 6; text extraction ([`crate::text`]) is implemented as of
+//! Step 5.
 
 use std::path::Path;
+use std::sync::Arc;
 
 use crate::metadata::Metadata;
 use crate::{Error, Result};
@@ -27,7 +29,7 @@ use crate::{Error, Result};
 /// ```
 #[derive(Debug)]
 pub struct Document {
-    inner: lopdf::Document,
+    inner: Arc<lopdf::Document>,
 }
 
 impl Document {
@@ -36,16 +38,20 @@ impl Document {
     /// Returns [`Error::Io`] if the file cannot be read, or
     /// [`Error::InvalidPdf`] if its contents cannot be parsed as a PDF.
     pub fn open<P: AsRef<Path>>(path: P) -> Result<Self> {
-        let inner = lopdf::Document::load(path).map_err(map_load_error)?;
-        Ok(Document { inner })
+        let inner = lopdf::Document::load(path).map_err(map_lopdf_error)?;
+        Ok(Document {
+            inner: Arc::new(inner),
+        })
     }
 
     /// Parses a PDF document from an in-memory byte buffer.
     ///
     /// Returns [`Error::InvalidPdf`] if the bytes cannot be parsed as a PDF.
     pub fn from_bytes(bytes: &[u8]) -> Result<Self> {
-        let inner = lopdf::Document::load_mem(bytes).map_err(map_load_error)?;
-        Ok(Document { inner })
+        let inner = lopdf::Document::load_mem(bytes).map_err(map_lopdf_error)?;
+        Ok(Document {
+            inner: Arc::new(inner),
+        })
     }
 
     /// Returns the number of pages in the document.
@@ -58,7 +64,10 @@ impl Document {
     /// Returns [`Error::PageNotFound`] if `index >= self.page_count()`.
     pub fn page(&self, index: usize) -> Result<Page> {
         if index < self.page_count() {
-            Ok(Page { index })
+            Ok(Page {
+                index,
+                source: Arc::clone(&self.inner),
+            })
         } else {
             Err(Error::PageNotFound(index))
         }
@@ -71,11 +80,20 @@ impl Document {
     pub fn metadata(&self) -> Result<Metadata> {
         Err(Error::Unsupported("Document::metadata".to_owned()))
     }
+
+    /// The underlying `lopdf` document, for use by sibling modules
+    /// (`crate::text`) that need to call `lopdf` APIs directly. Never
+    /// exposed outside the crate — `lopdf` types don't cross the public API
+    /// boundary.
+    pub(crate) fn inner(&self) -> &lopdf::Document {
+        &self.inner
+    }
 }
 
-/// Maps a `lopdf` load error onto `inkbind`'s own error type, so `lopdf`
-/// error types never cross the public API boundary.
-fn map_load_error(err: lopdf::Error) -> Error {
+/// Maps a `lopdf` error onto `inkbind`'s own error type, so `lopdf` error
+/// types never cross the public API boundary. Used for both document
+/// loading (`open`/`from_bytes`) and text extraction (`crate::text`).
+pub(crate) fn map_lopdf_error(err: lopdf::Error) -> Error {
     match err {
         lopdf::Error::IO(io_err) => Error::Io(io_err),
         other => Error::InvalidPdf(other.to_string()),
@@ -88,11 +106,18 @@ fn map_load_error(err: lopdf::Error) -> Error {
 #[derive(Debug)]
 pub struct Page {
     index: usize,
+    pub(crate) source: Arc<lopdf::Document>,
 }
 
 impl Page {
     /// The page's 0-based index within its parent document.
     pub fn index(&self) -> usize {
         self.index
+    }
+
+    /// The page's 1-based page number, as used by `lopdf`'s page-tree APIs
+    /// (`get_pages()`'s `BTreeMap` keys, `extract_text`'s `page_numbers`).
+    pub(crate) fn page_number(&self) -> u32 {
+        (self.index + 1) as u32
     }
 }

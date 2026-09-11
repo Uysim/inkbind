@@ -4,8 +4,8 @@
 //!
 //! - [`document`] — loading a PDF and walking its object model. Implemented
 //!   as of Step 4.
-//! - [`text`] — extracting text content from a page or document. Still a
-//!   documented stub returning [`Error::Unsupported`] until Step 5.
+//! - [`text`] — extracting text content from a page or document. Implemented
+//!   as of Step 5.
 //! - [`metadata`] — reading document information such as title and author
 //!   ([`Document::metadata`]). Still a documented stub returning
 //!   [`Error::Unsupported`] until Step 6.
