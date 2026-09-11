@@ -159,3 +159,79 @@ python3 tests/fixtures/gen_no_info_pdf.py tests/fixtures/no_info.pdf
 
 Used by `tests/metadata_extraction.rs` (Step 6) to pin that a missing
 `/Info` dictionary yields `Ok(Metadata::default())`, not an error.
+
+## `compressed_content.pdf` (793 bytes)
+
+A single-page PDF 1.7 file with:
+
+- Catalog → Pages → one `/MediaBox [0 0 612 792]` page
+- a content stream drawing the text `Compressed Content`, stored
+  **zlib-compressed** with `/Filter /FlateDecode` — every fixture above
+  stores its content stream uncompressed
+- a Type1 `/Helvetica` font resource
+- an `/Info` dictionary: `/Title (Inkbind Compressed Content Fixture)`,
+  `/Producer (inkbind gen_compressed_content_pdf.py)`, `/Creator (inkbind)`
+- a classic (non-stream) cross-reference table + trailer
+
+### Regenerate
+
+```sh
+python3 tests/fixtures/gen_compressed_content_pdf.py tests/fixtures/compressed_content.pdf
+```
+
+Used by `tests/sample_pdf_corpus.rs` (Step 7) to pin that text extraction
+transparently decompresses a `FlateDecode` content stream — real PDF
+producers compress content streams almost universally, unlike every
+hand-crafted fixture used through Step 6.
+
+## `multi_stream_contents.pdf` (894 bytes)
+
+A single-page PDF 1.7 file with:
+
+- Catalog → Pages → one `/MediaBox [0 0 612 792]` page
+- `/Contents [4 0 R 5 0 R]` — the page's content is **two separate,
+  uncompressed content-stream objects** (not one stream with multiple
+  `BT`/`ET` blocks, which `multiline.pdf` already covers), drawing
+  `Array Stream One` and `Array Stream Two` respectively
+- a shared Type1 `/Helvetica` font resource
+- an `/Info` dictionary: `/Title (Inkbind Multi-Stream Contents Fixture)`,
+  `/Producer (inkbind gen_multi_stream_contents_pdf.py)`, `/Creator (inkbind)`
+- a classic (non-stream) cross-reference table + trailer
+
+### Regenerate
+
+```sh
+python3 tests/fixtures/gen_multi_stream_contents_pdf.py tests/fixtures/multi_stream_contents.pdf
+```
+
+Used by `tests/sample_pdf_corpus.rs` (Step 7) to pin that text extraction
+concatenates content across distinct stream *objects* referenced by a
+`/Contents` array, not just multiple text blocks within one stream.
+
+## `xref_stream.pdf` (710 bytes)
+
+A single-page PDF 1.5 file that uses a **cross-reference stream**
+(`/Type /XRef`) instead of a classic `xref` table + `trailer` keyword —
+the modern alternative most current PDF producers emit, and a
+structurally different parse path from every other fixture in this suite:
+
+- `startxref` points directly at an uncompressed
+  `<< /Type /XRef /W [1 4 2] /Size 8 /Root 1 0 R /Info 6 0 R >>` stream
+  object whose binary rows encode each object's type/offset/generation —
+  no separate `xref`/`trailer` keywords appear anywhere in the file
+- Catalog → Pages → one `/MediaBox [0 0 612 792]` page, drawing the text
+  `Xref Stream`, otherwise identical in shape to `minimal.pdf` — only the
+  cross-reference mechanism changes, isolating that one variable
+- a Type1 `/Helvetica` font resource
+- an `/Info` dictionary: `/Title (Inkbind Xref Stream Fixture)`,
+  `/Producer (inkbind gen_xref_stream_pdf.py)`, `/Creator (inkbind)`
+
+### Regenerate
+
+```sh
+python3 tests/fixtures/gen_xref_stream_pdf.py tests/fixtures/xref_stream.pdf
+```
+
+Used by `tests/sample_pdf_corpus.rs` (Step 7) to pin that document loading,
+text extraction, and metadata reading all work when a PDF's
+cross-references live in a stream object instead of a classic xref table.
