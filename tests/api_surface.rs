@@ -3,13 +3,15 @@
 //! `Document::open` / `Document::from_bytes` / `Document::page_count` /
 //! `Document::page` are real as of Step 4 (see
 //! `docs/adr/0001-pdf-parsing-approach.md`); `Document::text` / `Page::text`
-//! are real as of Step 5; `Document::metadata` is real as of Step 6. Deeper
+//! are real as of Step 5; `Document::metadata` is real as of Step 6;
+//! `Document::images` / `Page::images` are real as of Step 8. Deeper
 //! behavior for the implemented methods lives in `tests/document_loading.rs`
-//! (Step 4), `tests/text_extraction.rs` (Step 5), and
-//! `tests/metadata_extraction.rs` (Step 6) — these tests just pin the
-//! *shape* of the API plus a minimal happy path.
+//! (Step 4), `tests/text_extraction.rs` (Step 5),
+//! `tests/metadata_extraction.rs` (Step 6), and
+//! `tests/image_extraction.rs` (Step 8) — these tests just pin the *shape*
+//! of the API plus a minimal happy path.
 
-use inkbind::{Document, Metadata, Page, Result};
+use inkbind::{Document, Image, Metadata, Page, Result};
 
 fn assert_send_sync<T: Send + Sync>() {}
 fn assert_debug<T: std::fmt::Debug>() {}
@@ -42,8 +44,10 @@ fn document_and_page_signatures_are_pinned() {
     let _page: fn(&Document, usize) -> Result<Page> = Document::page;
     let _metadata: fn(&Document) -> Result<Metadata> = Document::metadata;
     let _text: fn(&Document) -> Result<String> = Document::text;
+    let _images: fn(&Document) -> Result<Vec<Image>> = Document::images;
     let _page_index: fn(&Page) -> usize = Page::index;
     let _page_text: fn(&Page) -> Result<String> = Page::text;
+    let _page_images: fn(&Page) -> Result<Vec<Image>> = Page::images;
 }
 
 #[test]
@@ -73,4 +77,19 @@ fn metadata_is_plain_data() {
     assert_eq!(meta, Metadata::default());
     assert_eq!(meta.clone().title, None);
     assert_eq!(meta.creation_date, None);
+}
+
+#[test]
+fn image_is_plain_data() {
+    assert_send_sync::<Image>();
+    assert_debug::<Image>();
+
+    let doc = Document::open("tests/fixtures/image_flate.pdf").expect("fixture should parse");
+    let image = doc
+        .images()
+        .expect("fixture should have images")
+        .into_iter()
+        .next()
+        .expect("fixture has one image");
+    assert_eq!(image.clone(), image);
 }

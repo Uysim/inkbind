@@ -1,0 +1,40 @@
+%PDF-1.7
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /XObject << /Im0 5 0 R >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 27 >>
+stream
+q 2 0 0 2 0 0 cm /Im0 Do Q
+endstream
+endobj
+5 0 obj
+<< /Type /XObject /Subtype /Image /Width 8 /Height 8 /ColorSpace /DeviceGray /BitsPerComponent 1 /Filter /CCITTFaxDecode /Length 45 >>
+stream
+INKBIND PLACEHOLDER - NOT REAL CCITT FAX DATA
+endstream
+endobj
+6 0 obj
+<< /Title (Inkbind Image Unsupported Filter Fixture) /Producer (inkbind gen_image_unsupported_filter_pdf.py) /Creator (inkbind) >>
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000121 00000 n 
+0000000251 00000 n 
+0000000327 00000 n 
+0000000540 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R /Info 6 0 R >>
+startxref
+686
+%%EOF

@@ -110,4 +110,12 @@ impl Page {
     pub(crate) fn page_number(&self) -> u32 {
         (self.index + 1) as u32
     }
+
+    /// The page's `lopdf` object id, as used by `lopdf`'s resource-walking
+    /// APIs (`get_page_resources`, `get_page_fonts`). `None` only if the
+    /// page vanished from `source` after this `Page` was constructed, which
+    /// cannot happen through the public API.
+    pub(crate) fn page_id(&self) -> Option<lopdf::ObjectId> {
+        self.source.get_pages().get(&self.page_number()).copied()
+    }
 }
