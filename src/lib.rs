@@ -20,6 +20,9 @@
 //!   [`Page::rotation`]). Implemented as of Step 11.
 //! - [`reorder`] — reordering a document's page sequence
 //!   ([`Document::reorder`]). Implemented as of Step 11.
+//! - [`watermark`] — stamping a text watermark onto every page
+//!   ([`Document::watermark_text`], [`WatermarkOptions`]). Implemented as of
+//!   Step 12.
 //!
 //! # Example
 //!
@@ -35,6 +38,7 @@ pub mod reorder;
 pub mod rotate;
 pub mod split;
 pub mod text;
+pub mod watermark;
 
 mod error;
 
@@ -42,6 +46,7 @@ pub use document::{Document, Page};
 pub use error::{Error, Result};
 pub use images::{Image, ImageFormat};
 pub use metadata::Metadata;
+pub use watermark::WatermarkOptions;
 
 /// The version of the `inkbind` crate, as reported by Cargo at build time.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

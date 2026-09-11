@@ -28,6 +28,9 @@ pub enum Error {
     /// permutation of the document's page indices (wrong length, or a
     /// duplicate index).
     InvalidPageOrder,
+    /// A watermark opacity outside the valid `0.0..=1.0` range was given to
+    /// [`crate::Document::watermark_text`].
+    InvalidOpacity(f32),
 }
 
 impl fmt::Display for Error {
@@ -46,6 +49,12 @@ impl fmt::Display for Error {
             Error::InvalidPageOrder => {
                 write!(f, "page order is not a permutation of the document's pages")
             }
+            Error::InvalidOpacity(value) => {
+                write!(
+                    f,
+                    "watermark opacity must be between 0.0 and 1.0, got {value}"
+                )
+            }
         }
     }
 }
@@ -58,7 +67,8 @@ impl std::error::Error for Error {
             | Error::Unsupported(_)
             | Error::PageNotFound(_)
             | Error::InvalidRotation(_)
-            | Error::InvalidPageOrder => None,
+            | Error::InvalidPageOrder
+            | Error::InvalidOpacity(_) => None,
         }
     }
 }
@@ -126,5 +136,14 @@ mod tests {
             "page order is not a permutation of the document's pages",
         );
         assert!(std::error::Error::source(&Error::InvalidPageOrder).is_none());
+    }
+
+    #[test]
+    fn invalid_opacity_displays_the_value() {
+        assert_eq!(
+            Error::InvalidOpacity(1.5).to_string(),
+            "watermark opacity must be between 0.0 and 1.0, got 1.5",
+        );
+        assert!(std::error::Error::source(&Error::InvalidOpacity(1.5)).is_none());
     }
 }
