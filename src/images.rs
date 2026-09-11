@@ -24,8 +24,7 @@ use std::collections::BTreeSet;
 
 use lopdf::{Dictionary, Object, ObjectId, Stream};
 
-use crate::document::Document;
-use crate::document::Page;
+use crate::document::{Document, Page};
 use crate::{Error, Result};
 
 /// How [`Image::data`] is encoded.
