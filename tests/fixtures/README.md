@@ -235,3 +235,79 @@ python3 tests/fixtures/gen_xref_stream_pdf.py tests/fixtures/xref_stream.pdf
 Used by `tests/sample_pdf_corpus.rs` (Step 7) to pin that document loading,
 text extraction, and metadata reading all work when a PDF's
 cross-references live in a stream object instead of a classic xref table.
+
+## `image_flate.pdf` (844 bytes)
+
+A single-page PDF 1.7 file with:
+
+- Catalog → Pages → one `/MediaBox [0 0 612 792]` page
+- a content stream that paints the image (`/Im0 Do`) — not exercised by
+  inkbind's image extraction, included only so the file is a well-formed,
+  renderable PDF
+- one Image XObject (`/Im0`): 2x2 pixels, 8-bit `/DeviceRGB`, raw pixel
+  data `(255,0,0) (0,255,0) / (0,0,255) (255,255,0)` (row-major, no
+  padding) **zlib-compressed** with `/Filter /FlateDecode` — the same
+  filter real-world PDF producers commonly use for lossless embedded
+  images
+- an `/Info` dictionary: `/Title (Inkbind Image Flate Fixture)`,
+  `/Producer (inkbind gen_image_flate_pdf.py)`, `/Creator (inkbind)`
+- a classic (non-stream) cross-reference table + trailer
+
+### Regenerate
+
+```sh
+python3 tests/fixtures/gen_image_flate_pdf.py tests/fixtures/image_flate.pdf
+```
+
+Used by `tests/image_extraction.rs` (Step 8) to pin that image extraction
+decompresses a `/FlateDecode` Image XObject to its exact raw pixel bytes.
+
+## `image_jpeg.pdf` (865 bytes)
+
+A single-page PDF 1.7 file with:
+
+- Catalog → Pages → one `/MediaBox [0 0 612 792]` page
+- a content stream that paints the image (`/Im0 Do`), as in
+  `image_flate.pdf`
+- one Image XObject (`/Im0`) with `/Filter /DCTDecode`, whose stream bytes
+  are a **placeholder** (SOI/EOI JPEG markers wrapping a fixed string) —
+  **not** a real, decodable JPEG. inkbind never decodes JPEG pixel data
+  itself; it only passes `/DCTDecode` stream bytes through unchanged, so a
+  placeholder is sufficient to test that routing.
+- an `/Info` dictionary: `/Title (Inkbind Image JPEG Fixture)`,
+  `/Producer (inkbind gen_image_jpeg_pdf.py)`, `/Creator (inkbind)`
+- a classic (non-stream) cross-reference table + trailer
+
+### Regenerate
+
+```sh
+python3 tests/fixtures/gen_image_jpeg_pdf.py tests/fixtures/image_jpeg.pdf
+```
+
+Used by `tests/image_extraction.rs` (Step 8) to pin that a `/DCTDecode`
+Image XObject's bytes pass through unchanged as `ImageFormat::Jpeg`.
+
+## `image_unsupported_filter.pdf` (901 bytes)
+
+A single-page PDF 1.7 file with:
+
+- Catalog → Pages → one `/MediaBox [0 0 612 792]` page
+- a content stream that paints the image (`/Im0 Do`), as in
+  `image_flate.pdf`
+- one Image XObject (`/Im0`) with `/Filter /CCITTFaxDecode` and arbitrary
+  placeholder bytes — inkbind does not decode this filter, so the exact
+  bytes are irrelevant to the test
+- an `/Info` dictionary: `/Title (Inkbind Image Unsupported Filter
+  Fixture)`, `/Producer (inkbind gen_image_unsupported_filter_pdf.py)`,
+  `/Creator (inkbind)`
+- a classic (non-stream) cross-reference table + trailer
+
+### Regenerate
+
+```sh
+python3 tests/fixtures/gen_image_unsupported_filter_pdf.py tests/fixtures/image_unsupported_filter.pdf
+```
+
+Used by `tests/image_extraction.rs` (Step 8) to pin that an Image XObject
+using a filter inkbind does not decode surfaces `Error::Unsupported`
+rather than being silently dropped.
