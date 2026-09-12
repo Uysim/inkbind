@@ -74,6 +74,18 @@ impl Document {
     ///
     /// Returns [`Error::InvalidOpacity`] if `options.opacity` is outside
     /// `0.0..=1.0`.
+    ///
+    /// ```
+    /// use inkbind::{Document, WatermarkOptions};
+    ///
+    /// let doc = Document::open("tests/fixtures/minimal.pdf")?;
+    ///
+    /// let watermarked = doc.watermark_text("DRAFT", WatermarkOptions::default())?;
+    /// let text = watermarked.page(0)?.text()?;
+    /// assert!(text.contains("DRAFT"));
+    /// assert!(text.contains("Hello Inkbind"));
+    /// # Ok::<(), inkbind::Error>(())
+    /// ```
     pub fn watermark_text(&self, text: &str, options: WatermarkOptions) -> Result<Document> {
         if !(0.0..=1.0).contains(&options.opacity) {
             return Err(Error::InvalidOpacity(options.opacity));

@@ -31,6 +31,20 @@ impl Document {
     /// ([`Metadata::default`](crate::Metadata::default)) — there is no
     /// principled way to pick one input's metadata for the combined
     /// document, so none is propagated.
+    ///
+    /// ```
+    /// use inkbind::Document;
+    ///
+    /// let first = Document::open("tests/fixtures/minimal.pdf")?;
+    /// let second = Document::open("tests/fixtures/two_pages.pdf")?;
+    ///
+    /// let merged = Document::merge(&[first, second])?;
+    /// assert_eq!(merged.page_count(), 3);
+    /// assert!(merged.page(0)?.text()?.contains("Hello Inkbind"));
+    /// assert!(merged.page(1)?.text()?.contains("Page One"));
+    /// assert!(merged.page(2)?.text()?.contains("Page Two"));
+    /// # Ok::<(), inkbind::Error>(())
+    /// ```
     pub fn merge(documents: &[Document]) -> Result<Document> {
         let mut merged = lopdf::Document::with_version("1.7");
         let mut next_id = 1u32;

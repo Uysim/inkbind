@@ -67,6 +67,15 @@ pub struct Image {
 impl Document {
     /// Extracts every embedded raster image referenced by any page, in
     /// page order.
+    ///
+    /// ```
+    /// let doc = inkbind::Document::open("tests/fixtures/image_flate.pdf")?;
+    ///
+    /// let images = doc.images()?;
+    /// assert_eq!(images.len(), 1);
+    /// assert_eq!(images[0].format, inkbind::ImageFormat::Raw);
+    /// # Ok::<(), inkbind::Error>(())
+    /// ```
     pub fn images(&self) -> Result<Vec<Image>> {
         let mut images = Vec::new();
         for index in 0..self.page_count() {

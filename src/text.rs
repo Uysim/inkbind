@@ -13,6 +13,15 @@ use crate::Result;
 
 impl Document {
     /// Extracts and concatenates the text content of every page, in order.
+    ///
+    /// ```
+    /// let doc = inkbind::Document::open("tests/fixtures/two_pages.pdf")?;
+    ///
+    /// let text = doc.text()?;
+    /// assert!(text.contains("Page One"));
+    /// assert!(text.contains("Page Two"));
+    /// # Ok::<(), inkbind::Error>(())
+    /// ```
     pub fn text(&self) -> Result<String> {
         let page_numbers: Vec<u32> = (1..=self.page_count() as u32).collect();
         self.inner()
@@ -23,6 +32,15 @@ impl Document {
 
 impl Page {
     /// Extracts the text content of this page.
+    ///
+    /// ```
+    /// let doc = inkbind::Document::open("tests/fixtures/two_pages.pdf")?;
+    ///
+    /// let first_page_text = doc.page(0)?.text()?;
+    /// assert!(first_page_text.contains("Page One"));
+    /// assert!(!first_page_text.contains("Page Two"));
+    /// # Ok::<(), inkbind::Error>(())
+    /// ```
     pub fn text(&self) -> Result<String> {
         self.source
             .extract_text(&[self.page_number()])

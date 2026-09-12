@@ -41,6 +41,19 @@ impl Document {
     ///
     /// Returns [`Error::PageNotFound`] if any range's `end` exceeds
     /// [`Document::page_count`].
+    ///
+    /// ```
+    /// let doc = inkbind::Document::open("tests/fixtures/two_pages.pdf")?;
+    ///
+    /// let mut parts = doc.split(&[0..1, 1..2])?;
+    /// assert_eq!(parts.len(), 2);
+    /// let second = parts.pop().unwrap();
+    /// let first = parts.pop().unwrap();
+    /// assert_eq!(first.page_count(), 1);
+    /// assert!(first.page(0)?.text()?.contains("Page One"));
+    /// assert!(second.page(0)?.text()?.contains("Page Two"));
+    /// # Ok::<(), inkbind::Error>(())
+    /// ```
     pub fn split(&self, ranges: &[Range<usize>]) -> Result<Vec<Document>> {
         let page_ids: Vec<ObjectId> = self.inner().get_pages().into_values().collect();
 
