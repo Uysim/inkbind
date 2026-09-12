@@ -30,8 +30,26 @@
 //!
 //! # Example
 //!
+//! Build a one-page document from scratch, serialize it, and read its text
+//! back out — see each module's own docs for the rest of the API surface
+//! (opening an existing PDF, extracting metadata/images, merging, etc.).
+//!
 //! ```
-//! assert_eq!(inkbind::VERSION, env!("CARGO_PKG_VERSION"));
+//! use inkbind::{Document, DocumentBuilder, PageSpec, TextLine};
+//!
+//! let mut builder = DocumentBuilder::new();
+//! builder.add_page(PageSpec::default().with_line(TextLine {
+//!     text: "Hello, world!".to_owned(),
+//!     x: 72.0,
+//!     y: 720.0,
+//!     font_size: 24.0,
+//! }));
+//! let doc = builder.build()?;
+//!
+//! let bytes = doc.to_bytes()?;
+//! let reopened = Document::from_bytes(&bytes)?;
+//! assert!(reopened.page(0)?.text()?.contains("Hello, world!"));
+//! # Ok::<(), inkbind::Error>(())
 //! ```
 
 pub mod document;

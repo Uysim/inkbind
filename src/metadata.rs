@@ -46,6 +46,15 @@ impl Document {
     /// dictionary is missing entirely, since the PDF specification does not
     /// require producers to include one. A field within a present `/Info`
     /// dictionary is `None` when that field itself is absent.
+    ///
+    /// ```
+    /// let doc = inkbind::Document::open("tests/fixtures/full_metadata.pdf")?;
+    ///
+    /// let meta = doc.metadata()?;
+    /// assert_eq!(meta.title.as_deref(), Some("Inkbind Full Metadata Fixture"));
+    /// assert_eq!(meta.author.as_deref(), Some("Inkbind Test Suite"));
+    /// # Ok::<(), inkbind::Error>(())
+    /// ```
     pub fn metadata(&self) -> Result<Metadata> {
         Ok(match self.info_dictionary() {
             Some(dict) => Metadata {

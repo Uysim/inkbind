@@ -24,6 +24,15 @@ impl Document {
     ///
     /// Returns [`Error::InvalidRotation`] if `degrees` is not a multiple of
     /// 90, or [`Error::PageNotFound`] if `index >= self.page_count()`.
+    ///
+    /// ```
+    /// let doc = inkbind::Document::open("tests/fixtures/minimal.pdf")?;
+    /// assert_eq!(doc.page(0)?.rotation(), 0);
+    ///
+    /// let rotated = doc.rotate_page(0, 90)?;
+    /// assert_eq!(rotated.page(0)?.rotation(), 90);
+    /// # Ok::<(), inkbind::Error>(())
+    /// ```
     pub fn rotate_page(&self, index: usize, degrees: i32) -> Result<Document> {
         if degrees % 90 != 0 {
             return Err(Error::InvalidRotation(degrees));

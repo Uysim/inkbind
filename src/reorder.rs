@@ -22,6 +22,15 @@ impl Document {
     /// [`Error::PageNotFound`] if an entry is out of range, or
     /// [`Error::InvalidPageOrder`] if the length doesn't match or an index
     /// repeats.
+    ///
+    /// ```
+    /// let doc = inkbind::Document::open("tests/fixtures/two_pages.pdf")?;
+    ///
+    /// let reversed = doc.reorder(&[1, 0])?;
+    /// assert!(reversed.page(0)?.text()?.contains("Page Two"));
+    /// assert!(reversed.page(1)?.text()?.contains("Page One"));
+    /// # Ok::<(), inkbind::Error>(())
+    /// ```
     pub fn reorder(&self, order: &[usize]) -> Result<Document> {
         let page_ids: Vec<ObjectId> = self.inner().get_pages().into_values().collect();
 
