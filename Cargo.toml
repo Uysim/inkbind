@@ -18,6 +18,16 @@ categories = ["parser-implementations", "text-processing"]
 # src/document.rs — lopdf types never appear in inkbind's public API.
 lopdf = { version = "=0.32.0", default-features = false, features = ["nom_parser"] }
 
+[dev-dependencies]
+# `rayon` (a default feature) pulls in a `rayon-core` release requiring
+# rustc 1.80+, above inkbind's 1.75 MSRV; criterion doesn't need it for the
+# non-parallel benchmarking this crate does, so it's dropped.
+criterion = { version = "0.5", default-features = false, features = ["cargo_bench_support", "plotters"] }
+
+[[bench]]
+name = "large_pdf"
+harness = false
+
 [lints.rust]
 missing_docs = "warn"
 unsafe_code = "forbid"
